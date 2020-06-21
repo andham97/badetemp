@@ -48,6 +48,7 @@ export default class Overview extends Vue {
     };
 
     private GQLService = new GQLService();
+    private initialLocationsVisible = ['Heivannet', 'Meitjenn', 'Rødstjønn', 'Frotjenn', 'Vanebuvann', 'Opdalsvannet', 'Puppen', 'Øverbøtjønna', 'Gorningen', 'Mykle', 'Lakssjø'];
 
     async mounted() {
         const locations = (await this.GQLService.getQuery<{ locations: ILocation[] }>(`{ locations { name }}`)).locations;
@@ -64,11 +65,15 @@ export default class Overview extends Vue {
             this.data = [];
             res.forEach(line => {
                 if (line.airReadings.length > 0) {
+                    let visible = false;
+                    if (line.airReadings[0].location?.name) {
+                        visible = this.initialLocationsVisible.indexOf(line.airReadings[0].location?.name) > -1;
+                    }
                     this.data.push({
                         data: line.airReadings.map(point => ({ x: new Date(Number(point.time as string)).getTime(), y: point.temp as number })),
                         type: 'line',
                         name: line.airReadings[0].location?.name,
-                        visible: line.airReadings[0].location?.name == 'Rødstjønn',
+                        visible,
                     });
                 }
             });
