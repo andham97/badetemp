@@ -8,7 +8,7 @@ import Api from './api';
 var app = express();
 
 app.use(cors({
-    origin: ['http://localhost:8080', 'http://10.0.0.112:8080'],
+    origin: ['http://localhost:8080', 'http://10.0.0.112:8080', 'http://badetemp.net', 'http://www.badetemp.net', 'http://badetemp.net:8080', 'http://www.badetemp.net:8080'],
 }));
 
 app.use('/graphql', graphqlHTTP({
