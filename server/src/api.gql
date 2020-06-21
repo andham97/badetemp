@@ -1,0 +1,43 @@
+type WaterReading {
+    location: Location
+    temp: Float
+    time: String
+}
+
+type Location {
+    lat: Float
+    lng: Float
+    name: String
+}
+
+type AirReading {
+    app_temp: Float
+    clouds: Float
+    location: Location
+    precip: Float
+    solar_rad: Float
+    sunrise: String
+    sunset: String
+    temp: Float
+    time: String
+    uv: Float
+    wind_dir: Float
+    wind_spd: Float
+}
+
+input WaterReadingInput {
+    location: String
+    temp: Float
+    time: String
+}
+
+type Query {
+    waterReadings(location: String): [WaterReading]
+    airReadings(location: String): [AirReading]
+    locations: [Location]
+    getClosestStation(name: String): String
+}
+
+type Mutation {
+    addWaterReading(options: WaterReadingInput): WaterReading
+}
