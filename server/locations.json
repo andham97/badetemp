@@ -1,0 +1,87 @@
+[
+    {
+        "name": "Gåsodden",
+        "lat": 59.18,
+        "lng": 9.54
+    },
+    {
+        "name": "Bakkestranda",
+        "lat": 59.2,
+        "lng": 9.6
+    },
+    {
+        "name": "Heivannet",
+        "lat": 59.26,
+        "lng": 9.67
+    },
+    {
+        "name": "Røra",
+        "lat": 59.08,
+        "lng": 9.71
+    },
+    {
+        "name": "Åletjern",
+        "lat": 59.22,
+        "lng": 9.53
+    },
+    {
+        "name": "Meitjenn",
+        "lat": 59.25,
+        "lng": 9.68,
+        "apiKey": "3403641901e741cea79a86c2f113d8d2"
+    },
+    {
+        "name": "Rødstjønn",
+        "lat": 59.31,
+        "lng": 9.64,
+        "apiKey": "3403641901e741cea79a86c2f113d8d2"
+    },
+    {
+        "name": "Frotjenn",
+        "lat": 59.29,
+        "lng": 9.63,
+        "apiKey": "3403641901e741cea79a86c2f113d8d2"
+    },
+    {
+        "name": "Vanebuvann",
+        "lat": 59.35,
+        "lng": 9.67,
+        "apiKey": "3403641901e741cea79a86c2f113d8d2"
+    },
+    {
+        "name": "Opdalsvannet",
+        "lat": 59.29,
+        "lng": 9.68,
+        "apiKey": "3403641901e741cea79a86c2f113d8d2"
+    },
+    {
+        "name": "Puppen",
+        "lat": 59.27,
+        "lng": 9.69,
+        "apiKey": "3403641901e741cea79a86c2f113d8d2"
+    },
+    {
+        "name": "Øverbøtjønna",
+        "lat": 59.28,
+        "lng": 9.74,
+        "apiKey": "3403641901e741cea79a86c2f113d8d2"
+    },
+    {
+        "name": "Gorningen",
+        "lat": 59.25,
+        "lng": 9.79,
+        "apiKey": "3403641901e741cea79a86c2f113d8d2"
+    },
+    {
+        "name": "Mykle",
+        "lat": 59.42,
+        "lng": 9.7,
+        "apiKey": "3403641901e741cea79a86c2f113d8d2"
+    },
+    {
+        "name": "Lakssjø",
+        "lat": 59.23,
+        "lng": 9.82,
+        "apiKey": "3403641901e741cea79a86c2f113d8d2"
+    }
+]
