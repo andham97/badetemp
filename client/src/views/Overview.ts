@@ -16,14 +16,34 @@ interface IChartOptions {
     series: IChartSerie[],
     title?: {
         text: string;
-    };
+    }
     pane?: {
         size: string;
-    };
+    }
     xAxis?: {
         type: string;
         dateTimeLabelFormats?: {
             day?: string;
+        }
+    }
+    chart?: {
+        zoomType: string;
+        resetZoomButton?: {
+            position: {
+                x: number;
+                y: number;
+            }
+        }
+    }
+    tooltip?: {
+        followTouchMove?: boolean;
+    }
+    yAxis?: {
+        labels?: {
+            format?: string,
+        }
+        title?: {
+            text?: string
         }
     }
 }
@@ -39,12 +59,32 @@ export default class Overview extends Vue {
         pane: {
             size: '100%',
         },
+        chart: {
+            zoomType: 'xy',
+            resetZoomButton: {
+                position: {
+                    x: 0,
+                    y: -40
+                }
+            }
+        },
+        tooltip: {
+            followTouchMove: false,
+        },
         xAxis: {
             type: 'datetime',
             dateTimeLabelFormats: {
                 day: '%e. %b'
             }
-        }
+        },
+        yAxis: {
+            title: {
+                text: '',
+            },
+            labels: {
+                format: '{value} °C',
+            },
+        },
     };
 
     private GQLService = new GQLService();
