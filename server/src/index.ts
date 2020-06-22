@@ -16,15 +16,15 @@ app.use(cors({
     origin: ['http://localhost:8080', 'http://10.0.0.112:8080', 'http://badetemp.net', 'http://www.badetemp.net', 'http://badetemp.net:8080', 'http://www.badetemp.net:8080'],
 }));
 
-app.use('/graphql', graphqlHTTP({
-    schema: buildSchema(fs.readFileSync(__dirname + '/../src/api.gql').toString()),
-    rootValue: new Api(),
-    graphiql: true,
-    context: { dbConnection: new DBConnection() },
-    extensions: (info) => {
-        (info.context as IContext).dbConnection.cleanup();
-        return {};
-    }
-}));
-app.listen(3000);
-console.log('Running a GraphQL API server at http://localhost:3000/graphql');
+(async () => {
+    const dbConnection = new DBConnection();
+    dbConnection.getDBInit();
+    app.use('/graphql', graphqlHTTP({
+        schema: buildSchema(fs.readFileSync(__dirname + '/../src/api.gql').toString()),
+        rootValue: new Api(),
+        graphiql: true,
+        context: { dbConnection }
+    }));
+    app.listen(3000);
+    console.log('Running a GraphQL API server at http://localhost:3000/graphql');
+})();

@@ -32,6 +32,7 @@ export default class WaterReading {
 }
 
 export const getWaterReadings = async (dbConnection: DBConnection, location: string): Promise<WaterReading[]> => {
+    try {
     const db = await dbConnection.getDB();
     const colName = locationNameToCollection(location);
     if (!(await db.listCollections().toArray()).find(c => c.name === colName)) {
@@ -40,7 +41,11 @@ export const getWaterReadings = async (dbConnection: DBConnection, location: str
     const locationObject = await getLocation(dbConnection, location);
     return (await db.collection<DBReading>(colName).find<DBWaterReading>({ t: 0 }).toArray())
         .map(reading =>
-            new WaterReading(locationObject, reading.v, reading.ts));
+            new WaterReading(locationObject, reading.v, reading.ts)).sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+    }
+    catch(error) {
+        console.error(error);
+    }
 }
 
 export const addWaterReading = async (dbConnection: DBConnection, reading: IWaterReadingInput): Promise<WaterReading> => {

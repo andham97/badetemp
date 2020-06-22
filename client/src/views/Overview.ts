@@ -95,27 +95,29 @@ export default class Overview extends Vue {
         const res = await Promise
             .all(locations
                 .map(async (location) => 
-                    this.GQLService.getQuery<{ airReadings: IAirReading[] }>(
+                    this.GQLService.getQuery<{ waterReadings: IWaterReading[] }>(
                         `{ waterReadings(location: "${location.name}") { time temp location { name }}}`
                     )
                 )
             );
+        console.log(res);
         if (res?.length > 0) {
             this.data = [];
             res.forEach(line => {
-                if (line.airReadings?.length > 0) {
+                if (line.waterReadings?.length > 0) {
                     let visible = false;
-                    if (line.airReadings[0].location?.name) {
-                        visible = this.initialLocationsVisible.indexOf(line.airReadings[0].location?.name) > -1;
+                    if (line.waterReadings[0].location?.name) {
+                        visible = this.initialLocationsVisible.indexOf(line.waterReadings[0].location?.name) > -1;
                     }
                     this.data.push({
-                        data: line.airReadings.map(point => ({ x: new Date(Number(point.time as string)).getTime(), y: point.temp as number })),
+                        data: line.waterReadings.map(point => ({ x: new Date(point.time as string).getTime(), y: point.temp as number })),
                         type: 'line',
-                        name: line.airReadings[0].location?.name,
+                        name: line.waterReadings[0].location?.name,
                         visible,
                     });
                 }
             });
+            console.log(this.data);
             this.chartOptions.series = this.data;
         }
     }

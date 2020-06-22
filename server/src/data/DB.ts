@@ -27,19 +27,21 @@ export type DBReading = DBWaterReading | DBAirReading;
 export default class DBConnection {
     private url = process.env.DB_URL;
     private db = process.env.DB_NAME;
-    private clients: MongoClient[] = [];
+    private client: MongoClient;
 
-    async getDB(): Promise<Db> {
+    async getDBInit(): Promise<void> {
         const client = await MongoClient.connect(this.url, {
             useUnifiedTopology: true,
             useNewUrlParser: true,
         });
-        this.clients.push(client);
-        return client.db(this.db);
+        this.client = client;
+    }
+
+    async getDB(): Promise<Db> {
+        return this.client?.db(this.db);
     }
 
     async cleanup(): Promise<void> {
-        this.clients.forEach(client => client.close());
-        this.clients = [];
+        this.client.close();
     }
 }
