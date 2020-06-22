@@ -1,5 +1,11 @@
-import fs from 'fs';
-import Location, { getLocation } from './Location';
+import Location, { getLocation, locationNameToCollection } from './Location';
+import DBConnection, { DBReading, DBWaterReading } from './DB';
+
+export interface IWaterReadingInput {
+    temp?: number;
+    time?: string;
+    location?: string;
+}
 
 export default class WaterReading {
     private _temp: number;
@@ -25,15 +31,30 @@ export default class WaterReading {
     }
 }
 
-const raw_data: { [key: string]: { time: string, value: number }[] } = JSON
-    .parse(fs.readFileSync(__dirname + '/../../water_data.json').toString());
-const readings: WaterReading[] = [];
-Object.keys(raw_data).forEach(key => {
-    const location = getLocation(key);
-    raw_data[key].forEach(point =>
-        readings.push(new WaterReading(location, point.value, point.time)));
-});
+export const getWaterReadings = async (dbConnection: DBConnection, location: string): Promise<WaterReading[]> => {
+    const db = await dbConnection.getDB();
+    const colName = locationNameToCollection(location);
+    if (!(await db.listCollections().toArray()).find(c => c.name === colName)) {
+        throw new Error('Unknown location: ' + location);
+    }
+    const locationObject = await getLocation(dbConnection, location);
+    return (await db.collection<DBReading>(colName).find<DBWaterReading>({ t: 0 }).toArray())
+        .map(reading =>
+            new WaterReading(locationObject, reading.v, reading.ts));
+}
 
-export const getWaterReadings = (location: string) => {
-    return readings.filter(reading => reading.location?.name === location);
-};
+export const addWaterReading = async (dbConnection: DBConnection, reading: IWaterReadingInput): Promise<WaterReading> => {
+    const db = await dbConnection.getDB();
+    const colName = locationNameToCollection(reading.location);
+    if (!(await db.listCollections().toArray()).find(c => c.name === colName)) {
+        throw new Error('Unknown location: ' + reading.location);
+    }
+    const locationObject = await getLocation(dbConnection, reading.location);
+    const readingObject = new WaterReading(locationObject, reading.temp, reading.time);
+    const dbReadings = await db.collection<DBReading>(colName).findOne({ ts: readingObject.time });
+    if (dbReadings) {
+        throw new Error('Reading already exists');
+    }
+    await db.collection<DBReading>(colName).insertOne({ t: 0, v: readingObject.temp, ts: readingObject.time });
+    return readingObject;
+}

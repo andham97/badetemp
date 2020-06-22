@@ -4,6 +4,11 @@ import cors from 'cors';
 import graphqlHTTP from 'express-graphql';
 import { buildSchema } from 'graphql';
 import Api from './api';
+import DBConnection from './data/DB';
+
+export interface IContext {
+    dbConnection: DBConnection;
+}
 
 var app = express();
 
@@ -15,6 +20,11 @@ app.use('/graphql', graphqlHTTP({
     schema: buildSchema(fs.readFileSync(__dirname + '/../src/api.gql').toString()),
     rootValue: new Api(),
     graphiql: true,
+    context: { dbConnection: new DBConnection() },
+    extensions: (info) => {
+        (info.context as IContext).dbConnection.cleanup();
+        return {};
+    }
 }));
 app.listen(3000);
 console.log('Running a GraphQL API server at http://localhost:3000/graphql');

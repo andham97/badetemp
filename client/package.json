@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build"
+    "build": "vue-cli-service build",
+    "prestart": "yarn run build",
+    "start": "sudo serve -s -l tcp://badetemp.net:80 dist"
   },
   "dependencies": {
     "@babel/polyfill": "^7.4.4",
@@ -13,6 +15,7 @@
     "highcharts": "^8.1.2",
     "highcharts-vue": "^1.3.5",
     "moment": "^2.27.0",
+    "serve": "^11.3.2",
     "vue": "^2.6.11",
     "vue-class-component": "^7.2.3",
     "vue-property-decorator": "^8.4.2",

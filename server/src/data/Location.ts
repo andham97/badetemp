@@ -1,4 +1,11 @@
 import fs from 'fs';
+import DBConnection from './DB';
+
+interface ILocation {
+    lat: number;
+    lng: number;
+    name: string;
+}
 
 export default class Location {
     private _lat: number;
@@ -24,18 +31,23 @@ export default class Location {
     }
 }
 
-const locations: Location[] = JSON
-    .parse(fs.readFileSync(__dirname + '/../../locations.json').toString())
-    .map((loc: { name: string, lat: number, lng: number }) => new Location(loc.lat, loc.lng, loc.name));
+export const locationNameToCollection = (name: string): string => name
+    .replace(/Æ/g, '_AE_')
+    .replace(/æ/g, '_ae_')
+    .replace(/Ø/g, '_O_')
+    .replace(/ø/g, '_o_')
+    .replace(/Å/g, '_AA_')
+    .replace(/å/g, '_aa_')
+    .replace(/\s/g, '_');
 
-export const getLocations = (): Location[] => {
-    return locations;
-};
+export const getLocations = async (dbConnection: DBConnection): Promise<Location[]> => {
+    const db = await dbConnection.getDB();
+    const locations = await db.collection<ILocation>('locations').find().toArray();
+    return locations.map(location => new Location(location.lat, location.lng, location.name));
+}
 
-export const getLocation = (name: string): Location => {
-    const location = locations.filter(location => location.name === name);
-    if (location.length > 0) {
-        return location[0];
-    }
-    return null;
+export const getLocation = async (dbConnection: DBConnection, name: string): Promise<Location> => {
+    const db = await dbConnection.getDB();
+    const location = await db.collection<ILocation>('locations').findOne({ name });
+    return new Location(location.lat, location.lng, location.name);
 }

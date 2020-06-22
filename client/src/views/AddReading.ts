@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import moment from 'moment';
-import GQLService, { ILocation, IWaterReading } from '@/services/GQLService';
+import GQLService, { ILocation, IWaterReadingInput, IWaterReading } from '@/services/GQLService';
 import { Watch } from 'vue-property-decorator';
 
 const hourNames = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
@@ -68,15 +68,14 @@ export default class AddReading extends Vue {
 
     async addReading() {
         if (this.$refs.inputForm.validate()) {
-            const reading: IWaterReading = {
+            const reading: IWaterReadingInput = {
                 temp: Number(this.temperature),
                 time: this.now ? moment().format('YYYY-MM-DD[T]HH:mm:ssZZ') : moment(this.date).format('YYYY-MM-DD[T12:00:00]ZZ'),
-                location: {
-                    name: this.location,
-                },
+                location: this.location,
             };
-            console.log(reading);
+            const r = await this.GQLService.postQuery<IWaterReading>(
+                `mutation($reading: WaterReadingInput) { addWaterReading(reading: $reading) { time temp location { name }} }`,
+                { reading });
         }
-        console.log('Nope');
     }
 }

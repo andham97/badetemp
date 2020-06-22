@@ -1,25 +1,25 @@
 import axios, { AxiosResponse } from 'axios';
 
-import { getLocations } from "./data/Location";
-import { getWaterReadings } from "./data/WaterReading";
-import { getAirReadings } from "./data/AirReading";
+import Location, { getLocations } from "./data/Location";
+import WaterReading, { getWaterReadings, IWaterReadingInput, addWaterReading } from "./data/WaterReading";
+import AirReading, { getAirReadings } from "./data/AirReading";
+import DBConnection from './data/DB';
+import { IContext } from '.';
 
 export default class Api {
-    airReadings(query: { location: string }) {
-        return getAirReadings(query.location);
+    async airReadings(query: { location: string }, context: IContext): Promise<AirReading[]> {
+        return getAirReadings(context.dbConnection, query.location);
     }
 
-    locations() {
-        return getLocations();
+    async locations(_query: {}, context: IContext): Promise<Location[]> {
+        return getLocations(context.dbConnection);
     }
 
-    waterReadings(query: { location: string }) {
-        console.log(query);
-        return getWaterReadings(query.location);
+    async waterReadings(query: { location: string }, context: IContext): Promise<WaterReading[]> {
+        return getWaterReadings(context.dbConnection, query.location);
     }
 
-    async getClosestStation(query: { name: string }) {
-        const response: AxiosResponse<any> = await axios.get('https://frost.met.no/sources/v0.jsonld?geometry=nearest(POINT(9.641885%2059.305426))', { headers: { 'Authorization' : `Basic ${Buffer.from('d7d04682-d95e-4a1f-b4ff-a6ea8725eda4:').toString('base64')}`} });
-        return response.data.data[0].name;
+    async addWaterReading(query: { reading: IWaterReadingInput }, context: IContext): Promise<WaterReading> {
+        return addWaterReading(context.dbConnection, query.reading);
     }
 }
