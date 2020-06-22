@@ -96,7 +96,7 @@ export default class Overview extends Vue {
             .all(locations
                 .map(async (location) => 
                     this.GQLService.getQuery<{ airReadings: IAirReading[] }>(
-                        `{ airReadings(location: "${location.name}") { time temp location { name }}}`
+                        `{ waterReadings(location: "${location.name}") { time temp location { name }}}`
                     )
                 )
             );
