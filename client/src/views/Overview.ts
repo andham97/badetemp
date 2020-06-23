@@ -1,10 +1,11 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import GQLService, { ILocation, IWaterReading, IAirReading } from '@/services/GQLService';
+import moment from 'moment';
 
 interface IChartSerie {
     data: {
-        x: number;
+        x: number | Date;
         y: number;
     }[];
     type: string;
@@ -110,7 +111,10 @@ export default class Overview extends Vue {
                         visible = this.initialLocationsVisible.indexOf(line.waterReadings[0].location?.name) > -1;
                     }
                     this.data.push({
-                        data: line.waterReadings.map(point => ({ x: new Date(point.time as string).getTime(), y: point.temp as number })),
+                        data: line.waterReadings.map(point => {
+                            const t = moment(point.time as string).toObject();
+                            return { x: Date.UTC(t.years, t.months, t.date, t.hours, t.minutes, t.seconds), y: point.temp as number };
+                        }),
                         type: 'line',
                         name: line.waterReadings[0].location?.name,
                         visible,

@@ -6,7 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "prestart": "yarn run build",
-    "start": "sudo serve -s -l tcp://badetemp.net:80 dist"
+    "start": "serve -s -l tcp://127.0.0.1:8080 dist"
   },
   "dependencies": {
     "@babel/polyfill": "^7.4.4",
