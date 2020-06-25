@@ -1,0 +1,17 @@
+[
+    {
+        "libName": "skien",
+        "cronExp": "0 * * * *",
+        "enabled": true
+    },
+    {
+        "libName": "badetassen",
+        "cronExp": "*/15 * * * *",
+        "enabled": true
+    },
+    {
+        "libName": "yr",
+        "cronExp": "0 * * * *",
+        "enabled": true
+    }
+]
