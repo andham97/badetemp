@@ -5,6 +5,7 @@ module.exports = async () => {
     log('Fetching data...');
     const client = await getClient();
     try {
+        log('Client connected');
         const html = (await axios.get('https://badetassen.no')).data;
         const jsFile = html.slice(/\/static\/js\/main/gmi.exec(html).index).split('"')[0];
         const js = (await axios.get('https://badetassen.no' + jsFile)).data;
@@ -21,6 +22,7 @@ module.exports = async () => {
         })).data;
         const loc_pg_data = (await client.query('SELECT "id", "name", "area" FROM locations')).rows;
         const file_data = {};
+        log('Initial fetch complete');
         location_data.forEach(location => {
             const area = area_data.find(a => a.id === location.Area_id);
             if (!area) {
@@ -52,6 +54,7 @@ module.exports = async () => {
                 });
             }
         });
+        log('Data mapped');
         let new_elements = 0;
         await client.query('BEGIN');
         await Promise.all(Object.keys(file_data).map(async (key) => {
@@ -69,6 +72,8 @@ module.exports = async () => {
         await client.query('ROLLBACK');
         error(e);
     } finally {
-        client.end();
+        client.release();
     }
 };
+
+module.exports();

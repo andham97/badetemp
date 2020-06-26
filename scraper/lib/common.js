@@ -48,6 +48,7 @@ module.exports = (libName) => {
         if (!pool) {
             await initPGClient();
         }
+        console.log(pool.totalCount + ' ' + pool.idleCount);
         return pool.connect();
     }
 
@@ -57,3 +58,4 @@ module.exports = (libName) => {
         getClient,
     };
 };
+

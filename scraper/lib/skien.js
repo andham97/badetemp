@@ -37,6 +37,6 @@ module.exports = async () => {
         error(e);
     }
     finally {
-        client.end();
+        client.release();
     }
 };
