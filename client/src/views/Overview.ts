@@ -140,7 +140,7 @@ export default class Overview extends Vue {
                     });
                 }
             });
-            this.chartOptions.series = this.data.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));;
+            this.chartOptions.series = this.data.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
             if (!this.chartOptions.title) {
                 this.chartOptions.title = { text: 'Overview (' + this.selectedArea + ')' };
             }

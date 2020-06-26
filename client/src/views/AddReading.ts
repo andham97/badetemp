@@ -46,7 +46,7 @@ export default class AddReading extends Vue {
 
     async beforeMount() {
         const itemData = await this.GQLService.getQuery<{ locations: ILocation[] }>(`{ locations { id name } }`);
-        this.items = itemData.data.locations;
+        this.items = itemData.data.locations.filter(a => !!a.name).sort((a,b) => (a.name && b.name ? (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0) : 0));
     }
 
     checkTemperature(value: string): boolean | string {
