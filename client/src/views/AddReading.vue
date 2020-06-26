@@ -3,9 +3,25 @@
         <v-row align="center" justify="center">
             <v-col cols="12" sm="8" md="4">
                 <v-card class="elevation-12">
-                <v-toolbar color="primary" dark flat>
+                <v-toolbar
+                    color="primary"
+                    dark
+                    flat
+                >
                     <v-toolbar-title>Add reading</v-toolbar-title>
                 </v-toolbar>
+                <v-alert
+                    dense
+                    v-model="addingError"
+                    outlined
+                    type="error"
+                >{{ errorMsg }}</v-alert>
+                <v-alert
+                    dense
+                    text
+                    v-model="addingDone"
+                    type="success"
+                >Successfully added</v-alert>
                 <v-card-text>
                     <v-form ref="inputForm">
                         <v-autocomplete
@@ -59,8 +75,13 @@
                     </v-form>
                 </v-card-text>
                 <v-card-actions>
+                    
                     <v-spacer></v-spacer>
-                    <v-btn color="primary" @click="addReading">Add</v-btn>
+                    <v-btn
+                        color="primary"
+                        @click="addReading"
+                        :disabled="adding"
+                    >Add</v-btn>
                 </v-card-actions>
                 </v-card>
             </v-col>

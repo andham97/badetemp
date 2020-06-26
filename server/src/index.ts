@@ -19,7 +19,6 @@ app.use(cors({
 
 (async () => {
     const dbConnection = new DBConnection();
-    dbConnection.getDBInit();
     app.use('/graphql', graphqlHTTP({
         schema: buildSchema(fs.readFileSync(__dirname + '/../src/api.gql').toString()),
         rootValue: new Api(),

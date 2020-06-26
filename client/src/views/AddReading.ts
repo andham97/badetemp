@@ -17,11 +17,15 @@ export default class AddReading extends Vue {
     public now = false;
     public menu = false;
     public timeIcon = 'mdi-clock-time-' + hourNames[Number(moment().format('hh')) - 1];
+    public adding = false;
+    public addingDone = false;
+    public addingError = false;
+    public errorMsg = '';
 
     private GQLService = new GQLService();
     private oldDate = moment().format('YYYY-MM-DD');
     $refs!: {
-        inputForm: Vue & { validate: () => boolean },
+        inputForm: Vue & { validate: () => boolean, resetValidation: () => void },
     }
 
     @Watch('now')
@@ -41,16 +45,15 @@ export default class AddReading extends Vue {
     }
 
     async beforeMount() {
-        const itemData = await this.GQLService.getQuery<{ locations: ILocation[] }>(`{ locations { name }}`);
-        this.items = itemData.locations;
+        const itemData = await this.GQLService.getQuery<{ locations: ILocation[] }>(`{ locations { id name } }`);
+        this.items = itemData.data.locations;
     }
 
     checkTemperature(value: string): boolean | string {
         if (!value || value === '') {
             return 'Required';
         }
-        value = value.replace(',', '.');
-        if (isNaN(Number(value))) {
+        if (isNaN(Number(value.replace(',', '.')))) {
             return 'Not a valid number';
         }
         return true;
@@ -67,15 +70,32 @@ export default class AddReading extends Vue {
     }
 
     async addReading() {
+        this.addingError = false;
+        this.errorMsg = '';
         if (this.$refs.inputForm.validate()) {
+            this.adding = true;
             const reading: IWaterReadingInput = {
-                temp: Number(this.temperature),
-                time: this.now ? moment().format('YYYY-MM-DD[T]HH:mm:ssZZ') : moment(this.date).format('YYYY-MM-DD[T12:00:00]ZZ'),
-                location: this.location,
+                temperature: Number(this.temperature.replace(',', '.')),
+                time: this.now ? moment().format() : moment(this.date).hours(12).minutes(0).seconds(0).format(),
+                location: this.items.find(l => l.name === this.location)?.id,
             };
             const r = await this.GQLService.postQuery<IWaterReading>(
-                `mutation($reading: WaterReadingInput) { addWaterReading(reading: $reading) { time temp location { name }} }`,
+                `mutation($reading: WaterReadingInput) { addWaterReading(reading: $reading) { time temperature location { id name } } }`,
                 { reading });
+            if (this.GQLService.hasError(r)) {
+                this.adding = false;
+                this.addingError = true;
+                this.errorMsg = r.errors?.[0].message;
+                return;
+            }
+            this.location = '';
+            this.temperature = '';
+            this.$refs.inputForm.resetValidation();
+            this.adding = false;
+            this.addingDone = true;
+            setTimeout(() => {
+                this.addingDone = false;
+            }, 3000);
         }
     }
 }

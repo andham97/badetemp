@@ -1,47 +1,35 @@
-import { MongoClient, Db } from 'mongodb';
+import { Pool, PoolClient } from 'pg';
 import { config } from 'dotenv';
 config();
 
 export interface DBLocation {
+    yrId?: string;
+    area: string;
     name: string;
     lat: number;
     lng: number;
-    apiKey?: string;
+    id: number
 }
 
 export interface DBWaterReading {
-    t: number;
-    v: number;
-    ts: string;
+    time: Date;
+    temperature: number;
 }
 
 export interface DBAirReading extends DBWaterReading {
-    precip: number;
-    clouds: number;
-    wind_dir: number;
-    wind_spd: number;
+    precipitation: number;
 }
 
 export type DBReading = DBWaterReading | DBAirReading;
 
 export default class DBConnection {
-    private url = process.env.DB_URL;
-    private db = process.env.DB_NAME;
-    private client: MongoClient;
+    private pool: Pool;
 
-    async getDBInit(): Promise<void> {
-        const client = await MongoClient.connect(this.url, {
-            useUnifiedTopology: true,
-            useNewUrlParser: true,
-        });
-        this.client = client;
+    constructor() {
+        this.pool = new Pool();
     }
 
-    async getDB(): Promise<Db> {
-        return this.client?.db(this.db);
-    }
-
-    async cleanup(): Promise<void> {
-        this.client.close();
+    async getDB(): Promise<PoolClient> {
+        return this.pool.connect();
     }
 }

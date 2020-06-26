@@ -1,20 +1,21 @@
-import Location, { getLocation, locationNameToCollection } from './Location';
-import DBConnection, { DBReading, DBWaterReading } from './DB';
+import Location from './Location';
+import DBConnection, { DBWaterReading, DBLocation } from './DB';
+import moment from 'moment';
 
 export interface IWaterReadingInput {
-    temp?: number;
-    time?: string;
-    location?: string;
+    temperature: number;
+    time: string;
+    location: number;
 }
 
 export default class WaterReading {
-    private _temp: number;
+    private _temperature: number;
     private _time: string;
     private _location: Location;
 
-    constructor(location: Location, temp: number, time: string, reading?: WaterReading) {
+    constructor(location: Location, temperature: number, time: string, reading?: WaterReading) {
         this._location = location || reading?.location || null;
-        this._temp = typeof temp === 'number' ? temp : typeof reading?.temp === 'number' ? reading?.temp : -273.15;
+        this._temperature = typeof temperature === 'number' ? temperature : typeof reading?.temperature === 'number' ? reading?.temperature : -273.15;
         this._time = time || reading?.time || '';
     }
 
@@ -22,8 +23,8 @@ export default class WaterReading {
         return this._location;
     }
 
-    get temp(): number {
-        return this._temp;
+    get temperature(): number {
+        return this._temperature;
     }
 
     get time(): string {
@@ -31,35 +32,30 @@ export default class WaterReading {
     }
 }
 
-export const getWaterReadings = async (dbConnection: DBConnection, location: string): Promise<WaterReading[]> => {
-    try {
-    const db = await dbConnection.getDB();
-    const colName = locationNameToCollection(location);
-    if (!(await db.listCollections().toArray()).find(c => c.name === colName)) {
-        throw new Error('Unknown location: ' + location);
-    }
-    const locationObject = await getLocation(dbConnection, location);
-    return (await db.collection<DBReading>(colName).find<DBWaterReading>({ t: 0 }).toArray())
-        .map(reading =>
-            new WaterReading(locationObject, reading.v, reading.ts)).sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
-    }
-    catch(error) {
-        console.error(error);
-    }
+export const getWaterReadings = async (dbConnection: DBConnection, location: number): Promise<WaterReading[]> => {
+    const client = await dbConnection.getDB();
+    const readings = (await client.query<DBLocation & DBWaterReading>('SELECT "area", "locations"."id", "lat", "lng", "name", "temperature", "time" FROM "water_readings" INNER JOIN "locations" ON ("water_readings"."location" = "locations"."id") WHERE "locations"."id" = $1 AND "time" > \'' + moment('2020-05-01T00:00:00+02').format() + '\' ORDER BY "time" DESC;', [location])).rows;
+    client.release();
+    return readings.map(reading => new WaterReading(new Location(reading.area, reading.id, reading.lat, reading.lng, reading.name), reading.temperature, moment(reading.time).format()));
 }
 
-export const addWaterReading = async (dbConnection: DBConnection, reading: IWaterReadingInput): Promise<WaterReading> => {
-    const db = await dbConnection.getDB();
-    const colName = locationNameToCollection(reading.location);
-    if (!(await db.listCollections().toArray()).find(c => c.name === colName)) {
-        throw new Error('Unknown location: ' + reading.location);
+export const addWaterReading = async (dbConnection: DBConnection, input: IWaterReadingInput): Promise<WaterReading> => {
+    const client = await dbConnection.getDB();
+    const locations = (await client.query('SELECT * FROM "locations" WHERE "id" = $1;', [input.location])).rows;
+    if (locations.length === 0) {
+        throw new Error('Unknown location: ' + input.location);
     }
-    const locationObject = await getLocation(dbConnection, reading.location);
-    const readingObject = new WaterReading(locationObject, reading.temp, reading.time);
-    const dbReadings = await db.collection<DBReading>(colName).findOne({ ts: readingObject.time });
-    if (dbReadings) {
-        throw new Error('Reading already exists');
+    const reading = new WaterReading(new Location(locations[0].area, locations[0].id, locations[0].lat, locations[0].lng, locations[0].name), input.temperature, moment(input.time).format());
+    try {
+        await client.query('BEGIN');
+        await client.query('INSERT INTO "water_readings" ("location", "temperature", "time") VALUES ($1, $2, $3) ON CONFLICT DO NOTHING;', [reading.location.id, reading.temperature, reading.time]);
+        await client.query('COMMIT');
+        client.release();
     }
-    await db.collection<DBReading>(colName).insertOne({ t: 0, v: readingObject.temp, ts: readingObject.time });
-    return readingObject;
+    catch (e) {
+        await client.query('ROLLBACK');
+        client.release();
+        throw e;
+    }
+    return reading;
 }

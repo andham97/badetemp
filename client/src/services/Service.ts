@@ -1,6 +1,6 @@
 export interface IGraphqlResponse<T> {
     data: T;
-    error?: any[]
+    errors?: any[]
 }
 
 export default class Service {

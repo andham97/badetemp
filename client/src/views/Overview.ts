@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import GQLService, { ILocation, IWaterReading, IAirReading } from '@/services/GQLService';
 import moment from 'moment';
+import { Watch } from 'vue-property-decorator';
 
 interface IChartSerie {
     data: {
@@ -9,8 +10,9 @@ interface IChartSerie {
         y: number;
     }[];
     type: string;
-    name?: string;
+    name: string;
     visible?: boolean;
+    showInLegend?: boolean;
 }
 
 interface IChartOptions {
@@ -34,7 +36,9 @@ interface IChartOptions {
                 x: number;
                 y: number;
             }
-        }
+        },
+        width?: number | string;
+        height?: number | string;
     }
     tooltip?: {
         followTouchMove?: boolean;
@@ -55,7 +59,7 @@ export default class Overview extends Vue {
     public chartOptions: IChartOptions = {
         series: [] as IChartSerie[],
         title: {
-            text: 'Overview',
+            text: 'Loading...',
         },
         pane: {
             size: '100%',
@@ -67,7 +71,7 @@ export default class Overview extends Vue {
                     x: 0,
                     y: -40
                 }
-            }
+            },
         },
         tooltip: {
             followTouchMove: false,
@@ -87,42 +91,62 @@ export default class Overview extends Vue {
             },
         },
     };
+    public selectedArea = 'Siljan';
+    public locations: ILocation[] = [];
+    public areas: string[] = [];
 
     private GQLService = new GQLService();
-    private initialLocationsVisible = ['Heivannet', 'Meitjenn', 'Rødstjønn', 'Frotjenn', 'Vanebuvann', 'Opdalsvannet', 'Puppen', 'Øverbøtjønna', 'Gorningen', 'Mykle', 'Lakssjø'];
 
-    async mounted() {
-        const locations = (await this.GQLService.getQuery<{ locations: ILocation[] }>(`{ locations { name }}`)).locations;
+    @Watch('selectedArea')
+    public areaChanged(value: string) {
+        this.selectedArea = value;
+        this.updateChart();
+    }
+
+    async mounted(): Promise<void> {
+        this.locations = (await this.GQLService.getQuery<{ locations: ILocation[] }>(`{ locations { id name area }}`)).data.locations;
+        this.areas = Object.keys(this.locations.reduce((acc: { [key: string]: boolean }, v: ILocation) => {
+            if (!v.area) {
+                return acc;
+            }
+            acc[v.area] = true;
+            return acc;
+        }, {})).sort();
+        this.updateChart();
+    }
+
+    async updateChart(): Promise<void> {
         const res = await Promise
-            .all(locations
+            .all(this.locations
+                .filter(l => l.area === this.selectedArea)
                 .map(async (location) => 
                     this.GQLService.getQuery<{ waterReadings: IWaterReading[] }>(
-                        `{ waterReadings(location: "${location.name}") { time temp location { name }}}`
+                        `{ waterReadings(location: "${location.id}") { time temperature location { id name } } }`
                     )
                 )
             );
-        console.log(res);
         if (res?.length > 0) {
             this.data = [];
             res.forEach(line => {
-                if (line.waterReadings?.length > 0) {
-                    let visible = false;
-                    if (line.waterReadings[0].location?.name) {
-                        visible = this.initialLocationsVisible.indexOf(line.waterReadings[0].location?.name) > -1;
-                    }
+                if (line.data.waterReadings?.length > 0 && line.data.waterReadings[0].location) {
                     this.data.push({
-                        data: line.waterReadings.map(point => {
+                        data: line.data.waterReadings.reverse().map(point => {
                             const t = moment(point.time as string).toObject();
-                            return { x: Date.UTC(t.years, t.months, t.date, t.hours, t.minutes, t.seconds), y: point.temp as number };
+                            return { x: Date.UTC(t.years, t.months, t.date, t.hours, t.minutes, t.seconds), y: Number((point.temperature as number).toFixed(1)) };
                         }),
                         type: 'line',
-                        name: line.waterReadings[0].location?.name,
-                        visible,
+                        name: line.data.waterReadings[0].location.name as string,
+                        visible: true,
                     });
                 }
             });
-            console.log(this.data);
-            this.chartOptions.series = this.data;
+            this.chartOptions.series = this.data.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));;
+            if (!this.chartOptions.title) {
+                this.chartOptions.title = { text: 'Overview (' + this.selectedArea + ')' };
+            }
+            else {
+                this.chartOptions.title.text = 'Overview (' + this.selectedArea + ')';
+            }
         }
     }
 }
