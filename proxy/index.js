@@ -28,5 +28,9 @@ httpApp.get('*', (req, res) => {
 var httpServer = http.createServer(httpApp);
 var httpsServer = https.createServer(credentials, app);
 
-httpServer.listen(80);
-httpsServer.listen(443);
+httpServer.listen(80, () => {
+  console.log('HTTP redirect listening on port 80');
+});
+httpsServer.listen(443, () => {
+  console.log('Proxy listening on port 443');
+});
