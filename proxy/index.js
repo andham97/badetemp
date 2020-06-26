@@ -1,6 +1,17 @@
 const proxy = require('express-http-proxy');
 const app = require('express')();
+const httpApp = require('express')();
 const morgan = require('morgan');
+const fs = require('fs');
+const http = require('http');
+const https = require('https');
+const { config } = require('dotenv');
+config();
+
+var privateKey  = fs.readFileSync(process.env.PRIV_KEY_PATH, 'utf8');
+var certificate = fs.readFileSync(process.env.CERT_PATH, 'utf8');
+
+var credentials = {key: privateKey, cert: certificate};
 
 app.use(morgan('tiny'));
 app.use('/graphql', proxy('localhost:3000', {
@@ -10,6 +21,12 @@ app.use('/graphql', proxy('localhost:3000', {
   }));
 app.use(proxy('localhost:8080'));
 
-app.listen(80, () => {
-  console.log('Listening...')
+httpApp.get('*', (req, res) => {
+  res.redirect('https://' + req.headers.host + req.url);
 });
+
+var httpServer = http.createServer(httpApp);
+var httpsServer = https.createServer(credentials, app);
+
+httpServer.listen(80);
+httpsServer.listen(443);

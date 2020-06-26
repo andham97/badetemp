@@ -8,7 +8,11 @@ lerna-debug.log*
 sync/
 .DS_Store
 .vscode/
-
+*.key
+*.pem
+*.ext
+*.csr
+*.crt
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
