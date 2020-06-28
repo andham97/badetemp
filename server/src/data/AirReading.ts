@@ -1,16 +1,32 @@
 import Location from './Location';
 import DBConnection, { DBAirReading, DBLocation } from './DB';
 import moment from 'moment';
+import { PoolClient } from 'pg';
+
+export const getAirReadings = async (client: PoolClient, location: number): Promise<AirReading[]> => {
+    const readings = (await client.query<DBLocation & DBAirReading>('SELECT * FROM "air_readings" INNER JOIN "locations" ON ("air_readings"."location" = "locations"."id") WHERE "locations"."id" = $1 AND "time" > \'' + moment('2020-05-01T00:00:00+02').format() + '\' ORDER BY "time" ASC;', [location])).rows;
+    return readings.map(reading => new AirReading(new Location(reading.area, reading.id, reading.lat, reading.lng, reading.name), reading.precipitation, reading.temperature, moment(reading.time).format()));
+};
+
+export const getLocationsAirReadings = async (client: PoolClient, locations: number[]): Promise<AirReading[]> => {
+    const readings = (await client.query<DBLocation & DBAirReading>('SELECT * FROM "air_readings" INNER JOIN "locations" ON ("air_readings"."location" = "locations"."id") WHERE "locations"."id" = ANY($1) AND "time" > \'' + moment('2020-05-01T00:00:00+02').format() + '\' ORDER BY "time" ASC;', [locations])).rows;
+    return readings.map(reading => new AirReading(new Location(reading.area, reading.id, reading.lat, reading.lng, reading.name), reading.precipitation, reading.temperature, moment(reading.time).format()));
+};
+
+export const getAreaAirReadings = async (client: PoolClient, area: string): Promise<AirReading[]> => {
+    const readings = (await client.query<DBLocation & DBAirReading>('SELECT * FROM "air_readings" INNER JOIN "locations" ON ("air_readings"."location" = "locations"."id") WHERE "locations"."area" = $1 AND "time" > \'' + moment('2020-05-01T00:00:00+02').format() + '\' ORDER BY "time" ASC;', [area])).rows;
+    return readings.map(reading => new AirReading(new Location(reading.area, reading.id, reading.lat, reading.lng, reading.name), reading.precipitation, reading.temperature, moment(reading.time).format()));
+};
 
 export default class AirReading {
     private _location: Location;
-    private _precip: number;
+    private _precipitation: number;
     private _temperature: number;
     private _time: string;
 
-    constructor(location: Location, precip: number, temp: number, time: string, reading?: AirReading) {
+    constructor(location: Location, precipitation: number, temp: number, time: string, reading?: AirReading) {
         this._location = location || reading?.location || null;
-        this._precip = typeof precip === 'number' ? precip : typeof reading?.precip === 'number' ? reading?.precip : -1;
+        this._precipitation = typeof precipitation === 'number' ? precipitation : typeof reading?.precipitation === 'number' ? reading?.precipitation : -1;
         this._temperature = typeof temp === 'number' ? temp : typeof reading?.temperature === 'number' ? reading?.temperature : -273.15;
         this._time = time || reading?.time || '';
     }
@@ -19,8 +35,8 @@ export default class AirReading {
         return this._location;
     }
 
-    public get precip(): number {
-        return this._precip;
+    public get precipitation(): number {
+        return this._precipitation;
     }
 
     public get temperature(): number {
@@ -31,10 +47,3 @@ export default class AirReading {
         return this._time;
     }
 }
-
-export const getAirReadings = async (dbConnection: DBConnection, location: number): Promise<AirReading[]> => {
-    const client = await dbConnection.getDB();
-    const readings = (await client.query<DBLocation & DBAirReading>('SELECT "area", "locations"."id", "lat", "lng", "name", "precipitation", "temperature", "time" FROM "air_readings" INNER JOIN "locations" ON ("air_readings"."location" = "locations"."id") WHERE "locations"."id" = $1 ORDER BY "time" DESC;', [location])).rows;
-    client.release();
-    return readings.map(reading => new AirReading(new Location(reading.area, reading.id, reading.lat, reading.lng, reading.name), reading.precipitation, reading.temperature, moment(reading.time).format()));
-};

@@ -4,7 +4,7 @@ import Overview from '../views/Overview.vue';
 
 Vue.use(VueRouter);
 
-export const routes: Array<RouteConfig> = [
+export const routes: RouteConfig[] = [
     {
         path: '/',
         name: 'Overview',
@@ -17,10 +17,24 @@ export const routes: Array<RouteConfig> = [
     },
 ];
 
+const routesAll: RouteConfig[] = [
+    ...routes,
+    {
+        path: '/signIn',
+        name: 'SignIn',
+        component: () => import ('../views/Login.vue'),
+    },
+    {
+        path: '/join',
+        name: 'Join',
+        component: () => import ('../views/Join.vue'),
+    },
+]
+
 const router = new VueRouter({
     mode: 'history',
     base: process.env.BASE_URL,
-    routes,
+    routes: routesAll,
 });
 
 export default router;

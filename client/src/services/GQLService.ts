@@ -28,13 +28,6 @@ export interface IWaterReadingInput {
     location?: number;
 }
 
-export interface IAirReadingInput {
-    location?: number;
-    precipitation?: number;
-    temperature?: number;
-    time?: string;
-}
-
 export default class GQLService extends Service {
     public async getQuery<T>(query: string): Promise<IGraphqlResponse<T>> {
         const response: AxiosResponse<IGraphqlResponse<T>> = await axios.get(this.getUrl(query), {

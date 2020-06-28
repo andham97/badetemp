@@ -1,28 +1,33 @@
 type WaterReading {
-    location: Location
-    temperature: Float
-    time: String
+    location: Location!
+    temperature: Float!
+    time: String!
 }
 
 type Location {
-    id: Int
-    lat: Float
-    lng: Float
-    name: String
-    area: String
+    id: Int!
+    lat: Float!
+    lng: Float!
+    name: String!
+    area: String!
 }
 
 type AirReading {
-    location: Location
-    precip: Float
-    temp: Float
-    time: String
+    location: Location!
+    precipitation: Float
+    temperature: Float!
+    time: String!
 }
 
 type Query {
-    waterReadings(location: String): [WaterReading]
-    airReadings(location: String): [AirReading]
+    areas: [String]
+    areaAirReadings(area: String!): [AirReading]
+    areaWaterReadings(area: String!): [WaterReading]
     locations: [Location]
+    locationAirReadings(location: Int!): [AirReading]
+    locationsAirReadings(locations: [Int]!): [AirReading]
+    locationWaterReadings(location: Int!): [WaterReading]
+    locationsWaterReadings(locations: [Int]!): [WaterReading]
 }
 
 type Mutation {
@@ -32,12 +37,5 @@ type Mutation {
 input WaterReadingInput {
     location: Int
     temperature: Float
-    time: String
-}
-
-input AirReadingInput {
-    location: Int
-    precip: Float
-    temp: Float
     time: String
 }

@@ -14,7 +14,7 @@
         </v-row>
         <v-row>
             <v-col>
-                <highcharts ref="chart" :options="chartOptions" />
+                <AreaChartComponent :area="selectedArea" />
             </v-col>
         </v-row>
     </v-container>

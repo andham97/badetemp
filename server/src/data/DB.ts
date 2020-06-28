@@ -26,10 +26,12 @@ export default class DBConnection {
     private pool: Pool;
 
     constructor() {
-        this.pool = new Pool();
+        this.pool = new Pool({
+            connectionTimeoutMillis: 0,
+        });
     }
 
     async getDB(): Promise<PoolClient> {
-        return this.pool.connect();
+        return await this.pool.connect();
     }
 }

@@ -90,6 +90,7 @@ export default class AddReading extends Vue {
             }
             this.location = '';
             this.temperature = '';
+            this.now = false;
             this.$refs.inputForm.resetValidation();
             this.adding = false;
             this.addingDone = true;

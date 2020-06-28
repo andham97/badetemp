@@ -9,6 +9,9 @@
                         </v-list-item-content>
                     </v-list-item>
                 </template>
+                <v-spacer></v-spacer>
+                <!--<v-btn class="app-navigation-link" text to="/signIn">Sign in</v-btn>
+                <v-btn class="app-navigation-link" to="/join">Join</v-btn>-->
             </v-list>
         </v-navigation-drawer>
         <v-app-bar app color="blue darken-4" dark>
@@ -17,10 +20,10 @@
             <router-link to="/">
                 <v-toolbar-title id="app-title">{{appTitle}}</v-toolbar-title>
             </router-link>
-            <!--<router-link v-for="(route, index) in items" :key="index" :to="{path: route.path}">
-                <v-btn text class="hidden-sm-and-down">{{route.title}}</v-btn>
-            </router-link>-->
             <v-btn v-for="(route, index) in items" :key="index" text class="hidden-sm-and-down" :to="route.path">{{route.name}}</v-btn>
+            <v-spacer></v-spacer>
+            <!--<v-btn class="app-navigation-link" text to="/signIn">Sign in</v-btn>
+            <v-btn class="app-navigation-link" color="blue" to="/join">Join</v-btn>-->
         </v-app-bar>
     </span>
 </template>

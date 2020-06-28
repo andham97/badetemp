@@ -1,6 +1,7 @@
 import Location from './Location';
 import DBConnection, { DBWaterReading, DBLocation } from './DB';
 import moment from 'moment';
+import { PoolClient } from 'pg';
 
 export interface IWaterReadingInput {
     temperature: number;
@@ -32,15 +33,22 @@ export default class WaterReading {
     }
 }
 
-export const getWaterReadings = async (dbConnection: DBConnection, location: number): Promise<WaterReading[]> => {
-    const client = await dbConnection.getDB();
-    const readings = (await client.query<DBLocation & DBWaterReading>('SELECT "area", "locations"."id", "lat", "lng", "name", "temperature", "time" FROM "water_readings" INNER JOIN "locations" ON ("water_readings"."location" = "locations"."id") WHERE "locations"."id" = $1 AND "time" > \'' + moment('2020-05-01T00:00:00+02').format() + '\' ORDER BY "time" DESC;', [location])).rows;
-    client.release();
+export const getWaterReadings = async (client: PoolClient, location: number): Promise<WaterReading[]> => {
+    const readings = (await client.query<DBLocation & DBWaterReading>('SELECT * FROM "water_readings" INNER JOIN "locations" ON ("water_readings"."location" = "locations"."id") WHERE "locations"."id" = $1 AND "time" > \'' + moment('2020-05-01T00:00:00+02').format() + '\' ORDER BY "time" ASC;', [location])).rows;
     return readings.map(reading => new WaterReading(new Location(reading.area, reading.id, reading.lat, reading.lng, reading.name), reading.temperature, moment(reading.time).format()));
-}
+};
 
-export const addWaterReading = async (dbConnection: DBConnection, input: IWaterReadingInput): Promise<WaterReading> => {
-    const client = await dbConnection.getDB();
+export const getLocationsWaterReadings = async (client: PoolClient, locations: number[]): Promise<WaterReading[]> => {
+    const readings = (await client.query<DBLocation & DBWaterReading>('SELECT * FROM "water_readings" INNER JOIN "locations" ON ("water_readings"."location" = "locations"."id") WHERE "locations"."id" = ANY($1) AND "time" > \'' + moment('2020-05-01T00:00:00+02').format() + '\' ORDER BY "time" ASC;', [locations])).rows;
+    return readings.map(reading => new WaterReading(new Location(reading.area, reading.id, reading.lat, reading.lng, reading.name), reading.temperature, moment(reading.time).format()));
+};
+
+export const getAreaWaterReadings = async (client: PoolClient, area: string): Promise<WaterReading[]> => {
+    const readings = (await client.query<DBLocation & DBWaterReading>('SELECT * FROM "water_readings" INNER JOIN "locations" ON ("water_readings"."location" = "locations"."id") WHERE "locations"."area" = $1 AND "time" > \'' + moment('2020-05-01T00:00:00+02').format() + '\' ORDER BY "time" ASC;', [area])).rows;
+    return readings.map(reading => new WaterReading(new Location(reading.area, reading.id, reading.lat, reading.lng, reading.name), reading.temperature, moment(reading.time).format()));
+};
+
+export const addWaterReading = async (client: PoolClient, input: IWaterReadingInput): Promise<WaterReading> => {
     const locations = (await client.query('SELECT * FROM "locations" WHERE "id" = $1;', [input.location])).rows;
     if (locations.length === 0) {
         throw new Error('Unknown location: ' + input.location);
@@ -50,11 +58,9 @@ export const addWaterReading = async (dbConnection: DBConnection, input: IWaterR
         await client.query('BEGIN');
         await client.query('INSERT INTO "water_readings" ("location", "temperature", "time") VALUES ($1, $2, $3) ON CONFLICT DO NOTHING;', [reading.location.id, reading.temperature, reading.time]);
         await client.query('COMMIT');
-        client.release();
     }
     catch (e) {
         await client.query('ROLLBACK');
-        client.release();
         throw e;
     }
     return reading;
