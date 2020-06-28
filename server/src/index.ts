@@ -7,11 +7,11 @@ import Api from './api';
 import DBConnection from './data/DB';
 import morgan from 'morgan';
 import { config } from 'dotenv';
-import { Client, Pool } from 'pg';
+import { PoolClient } from 'pg';
 config();
 
 export interface IContext {
-    client: Client;
+    dbConnection: DBConnection;
 }
 
 var app = express();
@@ -29,21 +29,12 @@ app.use(cors({
 }));
 
 (async () => {
+    const dbConnection = new DBConnection();
     app.use('/graphql', graphqlHTTP({
         schema: buildSchema(fs.readFileSync(__dirname + '/../src/api.gql').toString()),
         rootValue: new Api(),
         graphiql: !!process.env.GRAPHIQL,
-        context: {
-            client: (() => {
-                const client = new Client();
-                client.connect();
-                return client;
-            })(),
-        },
-        extensions: (info => {
-            (info.context as IContext).client.end();
-            return null;
-        }),
+        context: { dbConnection: dbConnection },
     }));
     app.listen(3000);
     console.log('Running a GraphQL API server at http://localhost:3000/graphql');

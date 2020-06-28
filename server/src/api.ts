@@ -5,38 +5,38 @@ import { IContext } from '.';
 
 export default class Api {
     async areas(_query: {}, context: IContext): Promise<String[]> {
-        return getAreas(context.client);
+        return getAreas(context.dbConnection);
     }
 
     async areaAirReadings(query: { area: string }, context: IContext): Promise<AirReading[]> {
-        return getAreaAirReadings(context.client, query.area);
+        return getAreaAirReadings(context.dbConnection, query.area);
     }
 
     async areaWaterReadings(query: { area: string }, context: IContext): Promise<WaterReading[]> {
-        return getAreaWaterReadings(context.client, query.area);
+        return getAreaWaterReadings(context.dbConnection, query.area);
     }
 
     async locations(_query: {}, context: IContext): Promise<Location[]> {
-        return getLocations(context.client);
+        return getLocations(context.dbConnection);
     }
 
     async locationAirReadings(query: { location: number }, context: IContext): Promise<AirReading[]> {
-        return getAirReadings(context.client, query.location);
+        return getAirReadings(context.dbConnection, query.location);
     }
 
     async locationsAirReadings(query: { locations: number[] }, context: IContext): Promise<AirReading[]> {
-        return getLocationsAirReadings(context.client, query.locations);
+        return getLocationsAirReadings(context.dbConnection, query.locations);
     }
 
     async locationWaterReadings(query: { location: number }, context: IContext): Promise<WaterReading[]> {
-        return getWaterReadings(context.client, query.location);
+        return getWaterReadings(context.dbConnection, query.location);
     }
 
     async locationsWaterReadings(query: { locations: number[] }, context: IContext): Promise<WaterReading[]> {
-        return getLocationsWaterReadings(context.client, query.locations);
+        return getLocationsWaterReadings(context.dbConnection, query.locations);
     }
 
     async addWaterReading(query: { reading: IWaterReadingInput }, context: IContext): Promise<WaterReading> {
-        return addWaterReading(context.client, query.reading);
+        return addWaterReading(context.dbConnection, query.reading);
     }
 }

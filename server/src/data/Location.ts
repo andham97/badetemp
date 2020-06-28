@@ -37,18 +37,24 @@ export default class Location {
     }
 }
 
-export const getAreas = async (client: Client): Promise<String[]> => {
+export const getAreas = async (dbConnection: DBConnection): Promise<String[]> => {
+    const client = await dbConnection.getDB();
     const areas = (await client.query<{ area: string }>('SELECT DISTINCT ("area") FROM "locations";')).rows;
+    client.release();
     return areas.map(a => a.area);
 }
 
-export const getLocations = async (client: Client): Promise<Location[]> => {
+export const getLocations = async (dbConnection: DBConnection): Promise<Location[]> => {
+    const client = await dbConnection.getDB();
     const locations = (await client.query<DBLocation>('SELECT * FROM "locations";')).rows;
+    client.release();
     return locations.map(location => new Location(location.area, location.id, location.lat, location.lng, location.name));
 }
 
-export const getLocation = async (client: Client, name: string): Promise<Location> => {
+export const getLocation = async (dbConnection: DBConnection, name: string): Promise<Location> => {
+    const client = await dbConnection.getDB();
     const location = (await client.query<DBLocation>('SELECT * FROM "locations" WHERE "name" = $1;', [name])).rows;
+    client.release();
     if (location.length === 0) {
         return null;
     }
