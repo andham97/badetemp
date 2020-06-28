@@ -68,7 +68,7 @@ export const addWaterReading = async (dbConnection: DBConnection, input: IWaterR
     }
     catch (e) {
         await client.query('ROLLBACK');
-        throw e;
+        console.error(e);
     }
     finally {
         client.release();
