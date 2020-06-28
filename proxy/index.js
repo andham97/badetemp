@@ -22,6 +22,7 @@ app.use('/graphql', proxy('localhost:3000', {
 app.use(proxy('localhost:8080'));
 
 httpApp.get('*', (req, res) => {
+  console.log('redirect');
   res.redirect('https://' + req.headers.host + req.url);
 });
 
