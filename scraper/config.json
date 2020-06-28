@@ -13,5 +13,10 @@
         "libName": "yr",
         "cronExp": "0 * * * *",
         "enabled": true
+    },
+    {
+        "libName": "osloKommune",
+        "cronExp": "0 * * * *",
+        "enabled": true
     }
 ]

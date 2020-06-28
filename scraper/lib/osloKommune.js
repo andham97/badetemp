@@ -1,17 +1,62 @@
 const fs = require('fs');
 const axios = require('axios');
-const { log, error } = require('./common');
+const moment = require('moment');
+const { parse } = require('node-html-parser');
+const { finished } = require('stream');
+const { log, error, getClient } = require('./common')('OsloKommune');
 
-// Draft - need to solve pagination
 module.exports = async () => {
+    const client = await getClient();
     try {
-        log('---Oslo---', 'Fetching data...');
-        let html = (await axios.get('https://www.oslo.kommune.no/natur-kultur-og-fritid/tur-og-friluftsliv/badeplasser-og-temperaturer/')).data;
-        const temps = html.split('\n').filter(l => l.indexOf('class="data-value"') > -1).join('').split('class="data-value">').slice(1).map(l => Number(l.split('&deg')[0]));
-        const dates = html.split('\n').filter(l => l.indexOf('Sist målt') > -1).join('').split('Sist målt').slice(1).map(l => l.split('</td>')[0].replace(' ', '')).map(l => l.split('.')).map(l => new Date(l[2] + '-' + l[1] + '-' + l[0]));
-        html = (await axios.get('https://www.oslo.kommune.no/natur-kultur-og-fritid/tur-og-friluftsliv/badeplasser-og-temperaturer/')).data;
+        log('Fetching data...');
+        let offset = 0;
+        let list_data = [];
+        let empty = false;
+        while (!empty) {
+            const data = (await axios.get(`https://www.oslo.kommune.no/xmlhttprequest.php?t=78&service=filterList.render&baseURL=https%3A%2F%2Fwww.oslo.kommune.no%2Fnatur-kultur-og-fritid%2Ftur-og-friluftsliv%2Fbadeplasser-og-temperaturer%2F&c=340&offset=${offset}&mode=list&textFilter=&streetid=&address=`)).data;
+            if (data.html === '') {
+                empty = true;
+                break;
+            }
+            const data_elements = parse(data.html).querySelectorAll('.article-data');
+            data_elements.forEach(elem => {
+                const name = elem.querySelector('.article-header').childNodes[0].rawText;
+                const text = elem.querySelector('.data-value');
+                if (text) {
+                    const date = text.childNodes[0].rawText.split('Sist målt')[1].replace(' ', '').split('.');
+                    list_data.push({
+                        location: name,
+                        temperature: Number(text.childNodes[0].rawText.split('&deg;')[0]),
+                        time: moment(`${date[2]}-${date[1]}-${date[0]}T12:00:00`).format(),
+                    });
+                }
+                else {
+                    list_data.push({
+                        location: name,
+                        temperature: null,
+                    });
+                }
+                offset++;
+            });
+        }
+        const locations = (await client.query('SELECT "id", "name" FROM "locations" WHERE "area" = \'Oslo\';')).rows;
+        let nel = 0;
+        await client.query('BEGIN');
+        await Promise.all(list_data.filter(e => !!e.temperature).map(p => ({...p, location: locations.find(l => l.name === p.location)})).map(async (point) => {
+            if (!point.location) {
+                return;
+            }
+            const r = (await client.query(`INSERT INTO "water_readings" ("location", "temperature", "time") VALUES (${point.location.id}, ${point.temperature}, '${point.time}') ON CONFLICT DO NOTHING;`)).rowCount;
+            nel += r;
+        }));
+        await client.query('COMMIT');
+        log('Data fetched (' + nel + ' new readings)');
     }
-    catch (error) {
-        return console.error(error);
+    catch (err) {
+        await client.query('ROLLBACK');
+        error(err);
+    }
+    finally {
+        client.release();
     }
 };
