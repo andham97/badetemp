@@ -1,19 +1,19 @@
 import Location from './Location';
 import DBConnection, { DBAirReading, DBLocation } from './DB';
 import moment from 'moment';
-import { PoolClient } from 'pg';
+import { PoolClient, Client } from 'pg';
 
-export const getAirReadings = async (client: PoolClient, location: number): Promise<AirReading[]> => {
+export const getAirReadings = async (client: Client, location: number): Promise<AirReading[]> => {
     const readings = (await client.query<DBLocation & DBAirReading>('SELECT * FROM "air_readings" INNER JOIN "locations" ON ("air_readings"."location" = "locations"."id") WHERE "locations"."id" = $1 AND "time" > \'' + moment('2020-05-01T00:00:00+02').format() + '\' ORDER BY "time" ASC;', [location])).rows;
     return readings.map(reading => new AirReading(new Location(reading.area, reading.id, reading.lat, reading.lng, reading.name), reading.precipitation, reading.temperature, moment(reading.time).format()));
 };
 
-export const getLocationsAirReadings = async (client: PoolClient, locations: number[]): Promise<AirReading[]> => {
+export const getLocationsAirReadings = async (client: Client, locations: number[]): Promise<AirReading[]> => {
     const readings = (await client.query<DBLocation & DBAirReading>('SELECT * FROM "air_readings" INNER JOIN "locations" ON ("air_readings"."location" = "locations"."id") WHERE "locations"."id" = ANY($1) AND "time" > \'' + moment('2020-05-01T00:00:00+02').format() + '\' ORDER BY "time" ASC;', [locations])).rows;
     return readings.map(reading => new AirReading(new Location(reading.area, reading.id, reading.lat, reading.lng, reading.name), reading.precipitation, reading.temperature, moment(reading.time).format()));
 };
 
-export const getAreaAirReadings = async (client: PoolClient, area: string): Promise<AirReading[]> => {
+export const getAreaAirReadings = async (client: Client, area: string): Promise<AirReading[]> => {
     const readings = (await client.query<DBLocation & DBAirReading>('SELECT * FROM "air_readings" INNER JOIN "locations" ON ("air_readings"."location" = "locations"."id") WHERE "locations"."area" = $1 AND "time" > \'' + moment('2020-05-01T00:00:00+02').format() + '\' ORDER BY "time" ASC;', [area])).rows;
     return readings.map(reading => new AirReading(new Location(reading.area, reading.id, reading.lat, reading.lng, reading.name), reading.precipitation, reading.temperature, moment(reading.time).format()));
 };

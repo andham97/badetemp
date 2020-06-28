@@ -1,5 +1,5 @@
 import DBConnection, { DBLocation } from './DB';
-import { PoolClient } from 'pg';
+import { PoolClient, Client } from 'pg';
 
 export default class Location {
     private _area: string;
@@ -37,17 +37,17 @@ export default class Location {
     }
 }
 
-export const getAreas = async (client: PoolClient): Promise<String[]> => {
+export const getAreas = async (client: Client): Promise<String[]> => {
     const areas = (await client.query<{ area: string }>('SELECT DISTINCT ("area") FROM "locations";')).rows;
     return areas.map(a => a.area);
 }
 
-export const getLocations = async (client: PoolClient): Promise<Location[]> => {
+export const getLocations = async (client: Client): Promise<Location[]> => {
     const locations = (await client.query<DBLocation>('SELECT * FROM "locations";')).rows;
     return locations.map(location => new Location(location.area, location.id, location.lat, location.lng, location.name));
 }
 
-export const getLocation = async (client: PoolClient, name: string): Promise<Location> => {
+export const getLocation = async (client: Client, name: string): Promise<Location> => {
     const location = (await client.query<DBLocation>('SELECT * FROM "locations" WHERE "name" = $1;', [name])).rows;
     if (location.length === 0) {
         return null;

@@ -7,11 +7,11 @@ import Api from './api';
 import DBConnection from './data/DB';
 import morgan from 'morgan';
 import { config } from 'dotenv';
-import { PoolClient } from 'pg';
+import { Client, Pool } from 'pg';
 config();
 
 export interface IContext {
-    client: PoolClient;
+    client: Client;
 }
 
 var app = express();
@@ -29,19 +29,19 @@ app.use(cors({
 }));
 
 (async () => {
-    const dbConnection = new DBConnection();
     app.use('/graphql', graphqlHTTP({
         schema: buildSchema(fs.readFileSync(__dirname + '/../src/api.gql').toString()),
         rootValue: new Api(),
         graphiql: !!process.env.GRAPHIQL,
-        context: { client: await dbConnection.getDB() },
+        context: {
+            client: (() => {
+                const client = new Client();
+                client.connect();
+                return client;
+            })(),
+        },
         extensions: (info => {
-            try {
-                (info.context as IContext).client.release();
-            }
-            catch (err) {
-                console.log(err.message);
-            }
+            (info.context as IContext).client.end();
             return null;
         }),
     }));
