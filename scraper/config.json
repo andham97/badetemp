@@ -11,12 +11,17 @@
     },
     {
         "libName": "yr",
-        "cronExp": "0 * * * *",
+        "cronExp": "15 * * * *",
         "enabled": true
     },
     {
         "libName": "osloKommune",
-        "cronExp": "0 * * * *",
+        "cronExp": "30 * * * *",
+        "enabled": true
+    },
+    {
+        "libName": "badevann",
+        "cronExp": "45 * * * *",
         "enabled": true
     }
 ]
