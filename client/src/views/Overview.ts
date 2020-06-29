@@ -4,10 +4,12 @@ import GQLService, { ILocation, IWaterReading, IAirReading } from '@/services/GQ
 import moment from 'moment';
 import { Watch } from 'vue-property-decorator';
 import AreaChartComponent from '@/components/AreaChartComponent.vue';
+import AreaLocationList from '@/components/AreaLocationList.vue';
 
 @Component({
     components: {
         AreaChartComponent,
+        AreaLocationList,
     },
 })
 export default class Overview extends Vue {

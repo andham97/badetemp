@@ -14,6 +14,11 @@
         </v-row>
         <v-row>
             <v-col>
+                <AreaLocationList :area="selectedArea" />
+            </v-col>
+        </v-row>
+        <v-row>
+            <v-col>
                 <AreaChartComponent :area="selectedArea" />
             </v-col>
         </v-row>

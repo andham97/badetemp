@@ -1,7 +1,7 @@
 import Location from './Location';
 import DBConnection, { DBWaterReading, DBLocation } from './DB';
 import moment from 'moment';
-import { PoolClient, Client } from 'pg';
+import { read } from 'fs';
 
 export interface IWaterReadingInput {
     temperature: number;
@@ -50,6 +50,24 @@ export const getLocationsWaterReadings = async (dbConnection: DBConnection, loca
 export const getAreaWaterReadings = async (dbConnection: DBConnection, area: string): Promise<WaterReading[]> => {
     const client = await dbConnection.getDB();
     const readings = (await client.query<DBLocation & DBWaterReading>('SELECT * FROM "water_readings" INNER JOIN "locations" ON ("water_readings"."location" = "locations"."id") WHERE "locations"."area" = $1 AND "time" > \'' + moment('2020-05-01T00:00:00+02').format() + '\' ORDER BY "time" ASC;', [area])).rows;
+    client.release();
+    return readings.map(reading => new WaterReading(new Location(reading.area, reading.id, reading.lat, reading.lng, reading.name), reading.temperature, moment(reading.time).format()));
+};
+
+export const getAreaNewestWaterReadings = async (dbConnection: DBConnection, area: string): Promise<WaterReading[]> => {
+    const client = await dbConnection.getDB();
+    const readings = (await client.query<DBLocation & DBWaterReading>(
+        `SELECT * FROM "locations" INNER JOIN
+            (SELECT "wr".*
+            FROM "water_readings" "wr"
+            INNER JOIN
+                (SELECT "location", MAX("time") AS "MaxTime"
+                FROM "water_readings"
+                GROUP BY "location") "groupedwr" 
+            ON "wr"."location" = "groupedwr"."location"
+            AND "wr"."time" = "groupedwr"."MaxTime") "readings"
+        ON "locations"."id" = "readings"."location" AND "locations"."area" = '${area}';`)
+    ).rows;
     client.release();
     return readings.map(reading => new WaterReading(new Location(reading.area, reading.id, reading.lat, reading.lng, reading.name), reading.temperature, moment(reading.time).format()));
 };
