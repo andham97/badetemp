@@ -1,4 +1,9 @@
 {
+  "name": "badetemp-mail",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node . >> script.log"
+  },
   "dependencies": {
     "cron": "^1.8.2",
     "dotenv": "^8.2.0",
