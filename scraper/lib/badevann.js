@@ -2,7 +2,7 @@ const fs = require('fs');
 const axios = require('axios');
 const moment = require('moment');
 const { finished } = require('stream');
-const { log, error, getClient } = require('./common')('OsloKommune');
+const { log, error, getClient } = require('./common')('Badevann.no');
 
 const urls = {
     'hvalstrand': 'Hvalstrand',
@@ -27,13 +27,13 @@ module.exports = async () => {
             return { id: loc ? loc.id : null, name: r.name, data: JSON.parse(r.d.slice(12, -2)) };
         });
         const map = files.reduce((a, v) => {
-            a[v.id || v.name] = v.data.map(e => [moment(e[0]).add('years', 20).format(), e[1]]);
+            a[v.id || v.name] = v.data.map(e => [moment(e[0]).add(20, 'years').format(), e[1]]);
             return a;
         }, {});
         let nel = 0;
         await client.query('BEGIN');
         await Promise.all(Object.keys(map).map(async (key) => {
-            const r = await client.query('INSERT INTO water_readings ("location", "temperature", "time") VALUES ' + map[key].map(p => `(${key}, ${p[1]}, '${p[0]}')`))
+            const r = await client.query('INSERT INTO water_readings ("location", "temperature", "time") VALUES ' + map[key].map(p => `(${key}, ${p[1]}, '${p[0]}')`).join(',') + ' ON CONFLICT DO NOTHING;');
             nel += r.rowCount;
         }));
         await client.query('COMMIT');
