@@ -4,17 +4,16 @@
             <v-col
                 v-for="reading in data"
                 :key="reading.location.name"
-                min-cols="4"
             >
                 <v-card>
-                    <v-list-item>
-                        <v-list-item-content>
-                            <v-list-item-title>
-                                <v-icon>mdi-map-marker</v-icon>
-                                {{reading.location.name}}
-                            </v-list-item-title>
-                        </v-list-item-content>
-                    </v-list-item>
+                    <v-toolbar
+                        color="primary"
+                        dark
+                        flat
+                    >
+                        <v-toolbar-title><v-icon>mdi-map-marker</v-icon>
+                                {{reading.location.name}}</v-toolbar-title>
+                    </v-toolbar>
                     <v-list-item>
                         <v-list-item-content>
                             <v-list-item-subtitle>

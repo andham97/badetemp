@@ -1,0 +1,11 @@
+<div>
+    <h3>Most recent water temperatures for subscribed areas: {{areas}}</h3>
+    {{#area}}
+        <strong>{{name}}</strong>
+        <ul>
+            {{#locations}}
+                <li>{{name}} - {{temperature}} &deg;C {{time}}</li>
+            {{/locations}}
+        </ul>
+    {{/area}}
+</div>
