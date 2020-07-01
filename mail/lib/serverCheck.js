@@ -34,7 +34,7 @@ module.exports = async (state, return_text) => {
         return html;
     }
     else {
-        sendMail(state.to, 'Insert Stats', html);
+        sendMail(state.to, 'Server Check', html);
     }
     log('Finished');
 };

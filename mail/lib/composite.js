@@ -1,10 +1,10 @@
-const { sendMail } = require('./common')('Composite');
+const { log, sendMail } = require('./common')('Composite');
 
 module.exports = async (state) => {
     log('Starting...');
     let html = (await Promise.all(state.includes.map(async (inc) => {
-        return '<div>' + await require('./' + inc)(null, true) + '</div>';
+        return '<div>' + await require('./' + inc.lib)(inc.state, true) + '</div>';
     }))).join('');
-    sendMail(state.to, state.includes.join(', '), html);
+    sendMail(state.to, state.includes.map(i => i.lib).join(', '), html);
     log('Finished');
 };
