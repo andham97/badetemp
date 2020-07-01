@@ -2,6 +2,7 @@ const moment = require('moment');
 const { log, error, sendMail, getClient, compileTemplate } = require('./common')('AreaTemperatures');
 
 module.exports = async (state, return_text) => {
+    log('Starting...');
     const client = await getClient();
     const area = ['Siljan', 'Skien', 'Porsgrunn'];
     try {
@@ -57,5 +58,6 @@ module.exports = async (state, return_text) => {
     }
     finally {
         client.release();
+        log('Finished');
     }
 };
