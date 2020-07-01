@@ -11,10 +11,12 @@ module.exports = async (state, return_text) => {
             log(loc.name + ' is OK');
         }
         catch (err) {
-            errors.push({
-                url: err.config.url,
-                code: err.code,
-            });
+            if (['ERR_TLS_CERT_ALTNAME_INVALID'].indexOf(err.code) === -1) {
+                errors.push({
+                    url: err.config.url,
+                    code: err.code,
+                });
+            }
         }
     }));
     if (errors.length === 0 && !return_text) {
