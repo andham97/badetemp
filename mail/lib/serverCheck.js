@@ -11,7 +11,7 @@ module.exports = async (state, return_text) => {
             log(loc.name + ' is OK');
         }
         catch (err) {
-            if (['ERR_TLS_CERT_ALTNAME_INVALID'].indexOf(err.code) === -1) {
+            if (['ERR_TLS_CERT_ALTNAME_INVALID'].indexOf(err.code.replace(/\s/g, '')) === -1) {
                 errors.push({
                     url: err.config.url,
                     code: err.code,
