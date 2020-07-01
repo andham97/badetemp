@@ -1,6 +1,6 @@
 const axios = require('axios');
 const moment = require('moment');
-const { log, error, sendMail, getClient, compileTemplate } = require('./common')('ServerCheck');
+const { log, sendMail, compileTemplate } = require('./common')('ServiceCheck');
 
 module.exports = async (state, return_text) => {
     log('Starting...');
@@ -24,7 +24,7 @@ module.exports = async (state, return_text) => {
         return;
     }
     
-    const html = await compileTemplate('serverCheck', {
+    const html = await compileTemplate('serviceCheck', {
         time: moment().format('D. MMM YYYY HH:mm:ss'),
         status: state.pings.map(val => {
             const err = errors.find(e => e.url === val.url);
@@ -36,7 +36,7 @@ module.exports = async (state, return_text) => {
         return html;
     }
     else {
-        sendMail(state.to, 'Server Check', html);
+        sendMail(state.to, 'Service Check', html);
     }
     log('Finished');
 };
