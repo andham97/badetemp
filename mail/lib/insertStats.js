@@ -17,7 +17,7 @@ module.exports = async (state, return_text) => {
             return html;
         }
         else {
-            sendMail('spillkonsoll@icloud.com', 'Insert Stats', html);
+            sendMail(state.to, 'Insert Stats', html);
         }
     }
     catch (err) {

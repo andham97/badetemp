@@ -49,7 +49,7 @@ module.exports = async (state, return_text) => {
             return html;
         }
         else {
-            sendMail('spillkonsoll@icloud.com', 'Area Temperatures', html);
+            sendMail(state.to, 'Area Temperatures', html);
         }
     }
     catch (err) {
