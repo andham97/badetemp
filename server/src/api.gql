@@ -24,6 +24,7 @@ type Query {
     areaAirReadings(area: String!): [AirReading]
     areaWaterReadings(area: String!): [WaterReading]
     areaNewestWaterReadings(area: String!): [WaterReading]
+    location(name: String!): Location
     locations: [Location]
     locationAirReadings(location: Int!): [AirReading]
     locationsAirReadings(locations: [Int]!): [AirReading]

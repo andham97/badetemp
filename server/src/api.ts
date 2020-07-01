@@ -1,4 +1,4 @@
-import Location, { getLocations, getAreas } from "./data/Location";
+import Location, { getLocations, getAreas, getLocation } from "./data/Location";
 import WaterReading, { getWaterReadings, IWaterReadingInput, addWaterReading, getAreaWaterReadings, getLocationsWaterReadings, getAreaNewestWaterReadings } from "./data/WaterReading";
 import AirReading, { getAirReadings, getAreaAirReadings, getLocationsAirReadings } from "./data/AirReading";
 import { IContext } from '.';
@@ -18,6 +18,10 @@ export default class Api {
 
     async areaNewestWaterReadings(query: { area: string }, context: IContext): Promise<WaterReading[]> {
         return getAreaNewestWaterReadings(context.dbConnection, query.area);
+    }
+
+    async location(query: { name: string }, context: IContext): Promise<Location> {
+        return getLocation(context.dbConnection, query.name);
     }
 
     async locations(_query: {}, context: IContext): Promise<Location[]> {

@@ -7,6 +7,7 @@ export const getAirReadings = async (dbConnection: DBConnection, location: numbe
     const client = await dbConnection.getDB();
     const readings = (await client.query<DBLocation & DBAirReading>('SELECT * FROM "air_readings" INNER JOIN "locations" ON ("air_readings"."location" = "locations"."id") WHERE "locations"."id" = $1 AND "time" > \'' + moment('2020-05-01T00:00:00+02').format() + '\' ORDER BY "time" ASC;', [location])).rows;
     client.release();
+    console.log(readings);
     return readings.map(reading => new AirReading(new Location(reading.area, reading.id, reading.lat, reading.lng, reading.name), reading.precipitation, reading.temperature, moment(reading.time).format()));
 };
 

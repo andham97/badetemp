@@ -3,8 +3,8 @@
 </template>
 
 <script lang="ts">
-    import AreaChartComponent from './AreaChartComponent';
-    export default AreaChartComponent;
+    import LocationChart from './LocationChart';
+    export default LocationChart;
 </script>
 
 <style scoped>

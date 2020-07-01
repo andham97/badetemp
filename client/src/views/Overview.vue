@@ -19,7 +19,7 @@
         </v-row>
         <v-row>
             <v-col>
-                <AreaChartComponent :area="selectedArea" />
+                <AreaChart :area="selectedArea" />
             </v-col>
         </v-row>
     </v-container>

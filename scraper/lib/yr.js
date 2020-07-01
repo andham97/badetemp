@@ -48,7 +48,7 @@ module.exports = async () => {
                 return;
             }
             const r = await client.query('INSERT INTO air_readings ("location", "precipitation", "temperature", "time") VALUES ' + 
-                point.data.map(p => `(${point.id}, ${p.precip ? p.precip : -1}, ${p.v}, '${p.ts}')`).join(',') + ' ON CONFLICT ("location", "time") DO NOTHING;');
+                point.data.map(p => `(${point.id}, ${isNaN(Number(p.precip)) ? 0 : Number(p.precip)}, ${Number(p.v)}, '${p.ts}')`).join(',') + ' ON CONFLICT ("location", "time") DO NOTHING;');
             new_elements += r.rowCount;
         }));
         await client.query('COMMIT');

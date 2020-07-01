@@ -4,7 +4,7 @@ import GQLService, { IWaterReading } from '@/services/GQLService';
 import moment from 'moment';
 
 @Component
-export default class AreaChartComponent extends Vue {
+export default class AreaChart extends Vue {
     @Prop() area!: string;
     @Prop({ default: () => ({}) }) chartOptions: Highcharts.Options | undefined;
 
@@ -94,6 +94,7 @@ export default class AreaChartComponent extends Vue {
                 type: 'line',
                 name: location,
                 visible: true,
+                stickyTracking: false,
             }));
             this.options.series = data.sort((a, b) => {
                 if (!a.name || !b.name) {
