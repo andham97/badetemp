@@ -1,50 +1,50 @@
 import Location, { getLocations, getAreas, getLocation } from "./data/Location";
 import WaterReading, { getWaterReadings, IWaterReadingInput, addWaterReading, getAreaWaterReadings, getLocationsWaterReadings, getAreaNewestWaterReadings } from "./data/WaterReading";
 import AirReading, { getAirReadings, getAreaAirReadings, getLocationsAirReadings } from "./data/AirReading";
+import { login, register, logout } from "./data/Auth";
+import { config } from 'dotenv';
 import { IContext } from '.';
+config();
 
-export default class Api {
-    async areas(_query: {}, context: IContext): Promise<String[]> {
-        return getAreas(context.dbConnection);
-    }
-
-    async areaAirReadings(query: { area: string }, context: IContext): Promise<AirReading[]> {
-        return getAreaAirReadings(context.dbConnection, query.area);
-    }
-
-    async areaWaterReadings(query: { area: string }, context: IContext): Promise<WaterReading[]> {
-        return getAreaWaterReadings(context.dbConnection, query.area);
-    }
-
-    async areaNewestWaterReadings(query: { area: string }, context: IContext): Promise<WaterReading[]> {
-        return getAreaNewestWaterReadings(context.dbConnection, query.area);
-    }
-
-    async location(query: { name: string }, context: IContext): Promise<Location> {
-        return getLocation(context.dbConnection, query.name);
-    }
-
-    async locations(_query: {}, context: IContext): Promise<Location[]> {
-        return getLocations(context.dbConnection);
-    }
-
-    async locationAirReadings(query: { location: number }, context: IContext): Promise<AirReading[]> {
-        return getAirReadings(context.dbConnection, query.location);
-    }
-
-    async locationsAirReadings(query: { locations: number[] }, context: IContext): Promise<AirReading[]> {
-        return getLocationsAirReadings(context.dbConnection, query.locations);
-    }
-
-    async locationWaterReadings(query: { location: number }, context: IContext): Promise<WaterReading[]> {
-        return getWaterReadings(context.dbConnection, query.location);
-    }
-
-    async locationsWaterReadings(query: { locations: number[] }, context: IContext): Promise<WaterReading[]> {
-        return getLocationsWaterReadings(context.dbConnection, query.locations);
-    }
-
-    async addWaterReading(query: { reading: IWaterReadingInput }, context: IContext): Promise<WaterReading> {
-        return addWaterReading(context.dbConnection, query.reading);
-    }
-}
+export default {
+    Query: {
+        areas: async (_: any, __: any, context: IContext): Promise<String[]> => {
+            return getAreas(context.dbConnection);
+        },
+        location: async (_: any, args: { name: string }, context: IContext): Promise<Location> => {
+            return getLocation(context.dbConnection, args.name);
+        },
+        locations: async (_: any, __: any, context: IContext): Promise<Location[]> => {
+            return getLocations(context.dbConnection);
+        },
+        areaAirReadings: async (_: any, args: { area: string }, context: IContext): Promise<AirReading[]> => {
+            return getAreaAirReadings(context.dbConnection, args.area);
+        },
+        locationsAirReadings: async (_: any, args: { locations: number[] }, context: IContext): Promise<AirReading[]> => {
+            return getLocationsAirReadings(context.dbConnection, args.locations);
+        },
+        areaWaterReadings: async (_: any, args: { area: string }, context: IContext): Promise<WaterReading[]> => {
+            return getAreaWaterReadings(context.dbConnection, args.area);
+        },
+        areaNewestWaterReadings: async (_: any, args: { area: string }, context: IContext): Promise<WaterReading[]> => {
+            return getAreaNewestWaterReadings(context.dbConnection, args.area);
+        },
+        locationsWaterReadings: async (_: any, args: { locations: number[] }, context: IContext): Promise<WaterReading[]> => {
+            return getLocationsWaterReadings(context.dbConnection, args.locations);
+        },
+    },
+    Mutation: {
+        addWaterReading: async (_: any, args: { reading: IWaterReadingInput }, context: IContext): Promise<WaterReading> => {
+            return addWaterReading(context.dbConnection, args.reading);
+        },
+        login: async (_: any, args: { username: string, password: string }, context: IContext): Promise<string> => {
+            return login(context.dbConnection, args.username, args.password);
+        },
+        register: async (_: any, args: { username: string, password: string }, context: IContext): Promise<boolean> => {
+            return register(context.dbConnection, args.username, args.password);
+        },
+        logout: async (_: any, __: any, context: IContext): Promise<boolean> => {
+            return logout(context.dbConnection, context.userId);
+        },
+    },
+};

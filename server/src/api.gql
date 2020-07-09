@@ -26,14 +26,15 @@ type Query {
     areaNewestWaterReadings(area: String!): [WaterReading]
     location(name: String!): Location
     locations: [Location]
-    locationAirReadings(location: Int!): [AirReading]
     locationsAirReadings(locations: [Int]!): [AirReading]
-    locationWaterReadings(location: Int!): [WaterReading]
     locationsWaterReadings(locations: [Int]!): [WaterReading]
 }
 
 type Mutation {
     addWaterReading(reading: WaterReadingInput): WaterReading
+    login(username: String!, password: String!): String
+    register(username: String!, password: String!): Boolean
+    logout: Boolean
 }
 
 input WaterReadingInput {

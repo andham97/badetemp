@@ -29,7 +29,12 @@ const routesAll: RouteConfig[] = [
         name: 'Join',
         component: () => import ('../views/Join.vue'),
     },
-]
+    {
+        path: '/location/:location',
+        name: 'Location Detail',
+        component: () => import ('../views/LocationDetails.vue'),
+    },
+];
 
 const router = new VueRouter({
     mode: 'history',

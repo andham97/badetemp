@@ -85,10 +85,10 @@ export default class LocationChart extends Vue {
             console.error('Location not recognized');
         }
         
-        const water_readings = (await this.GQLService.getQuery<{ locationWaterReadings: IWaterReading[] }>(`{ locationWaterReadings(location: ${location.location.id}) { temperature time } }`)).data;
+        const water_readings = (await this.GQLService.getQuery<{ locationsWaterReadings: IWaterReading[] }>(`{ locationsWaterReadings(locations: [${location.location.id}]) { temperature time } }`)).data;
         this.options.series?.push({
             name: 'Water temperature',
-            data: water_readings.locationWaterReadings.map(point => {
+            data: water_readings.locationsWaterReadings.map(point => {
                 const t = moment(point.time as string).toObject();
                 return {
                     x: Date.UTC(t.years, t.months, t.date, t.hours, t.minutes, t.seconds),
@@ -99,11 +99,11 @@ export default class LocationChart extends Vue {
             stickyTracking: false,
         });
 
-        const air_readings = (await this.GQLService.getQuery<{ locationAirReadings: IAirReading[] }>(`{ locationAirReadings(location: ${location.location.id}) { time precipitation temperature } }`)).data;
-        if (air_readings.locationAirReadings.length > 0) {
+        const air_readings = (await this.GQLService.getQuery<{ locationsAirReadings: IAirReading[] }>(`{ locationsAirReadings(locations: [${location.location.id}]) { time precipitation temperature } }`)).data;
+        if (air_readings.locationsAirReadings.length > 0) {
             this.options.series?.push({
                 name: 'Air temperature',
-                data: air_readings.locationAirReadings.map(point => {
+                data: air_readings.locationsAirReadings.map(point => {
                     const t = moment(point.time as string).toObject();
                     return {
                         x: Date.UTC(t.years, t.months, t.date, t.hours, t.minutes, t.seconds),
@@ -115,7 +115,7 @@ export default class LocationChart extends Vue {
             });
             this.options.series?.push({
                 name: 'Precipitation',
-                data: air_readings.locationAirReadings.map(point => {
+                data: air_readings.locationsAirReadings.map(point => {
                     const t = moment(point.time as string).toObject();
                     return {
                         x: Date.UTC(t.years, t.months, t.date, t.hours, t.minutes, t.seconds),

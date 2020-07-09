@@ -5,14 +5,16 @@
                 v-for="reading in data"
                 :key="reading.location.name"
             >
-                <v-card>
+                <v-card @click="openDetailView(reading.location.name)">
                     <v-toolbar
                         color="primary"
                         dark
                         flat
                     >
-                        <v-toolbar-title><v-icon>mdi-map-marker</v-icon>
-                                {{reading.location.name}}</v-toolbar-title>
+                        <v-toolbar-title>
+                            <v-icon>mdi-map-marker</v-icon>
+                            {{reading.location.name}}
+                        </v-toolbar-title>
                     </v-toolbar>
                     <v-list-item>
                         <v-list-item-content>

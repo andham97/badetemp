@@ -20,6 +20,10 @@ export default class AreaChartComponent extends Vue {
         return 'mdi-clock-time-' + hourNames[Number(moment(time).format('hh')) - 1];
     }
 
+    public openDetailView(location: string): void {
+        this.$router.push('/location/' + location);
+    }
+
     private GQLService = new GQLService();
 
     async beforeMount(): Promise<void> {

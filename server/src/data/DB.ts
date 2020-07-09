@@ -11,6 +11,12 @@ export interface DBLocation {
     id: number
 }
 
+export interface DBSession {
+    id: string;
+    user: number;
+    expiresAt: string;
+}
+
 export interface DBWaterReading {
     time: Date;
     temperature: number;
