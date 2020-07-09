@@ -32,9 +32,14 @@
                             </v-list-item-subtitle>
                         </v-list-item-content>
                     </v-list-item>
-                    <v-card-actions>
-
-                    </v-card-actions>
+                    <v-footer>
+                        <v-col
+                            class="text-center"
+                            cols="12"
+                        >
+                            <i style="font-size: 14px; color: #444">Click for more details</i>
+                        </v-col>
+                    </v-footer>
                 </v-card>
             </v-col>
         </v-row>
