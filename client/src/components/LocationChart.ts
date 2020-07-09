@@ -92,7 +92,7 @@ export default class LocationChart extends Vue {
                 const t = moment(point.time as string).toObject();
                 return {
                     x: Date.UTC(t.years, t.months, t.date, t.hours, t.minutes, t.seconds),
-                    y: Number((point.temperature as number).toFixed(1))
+                    y: Number((point.temperature as number).toFixed(1)),
                 };
             }),
             type: 'line',
@@ -107,7 +107,7 @@ export default class LocationChart extends Vue {
                     const t = moment(point.time as string).toObject();
                     return {
                         x: Date.UTC(t.years, t.months, t.date, t.hours, t.minutes, t.seconds),
-                        y: Number((point.temperature as number).toFixed(1))
+                        y: Number((point.temperature as number).toFixed(1)),
                     };
                 }),
                 type: 'line',
@@ -119,7 +119,7 @@ export default class LocationChart extends Vue {
                     const t = moment(point.time as string).toObject();
                     return {
                         x: Date.UTC(t.years, t.months, t.date, t.hours, t.minutes, t.seconds),
-                        y: Number((point.precipitation as number).toFixed(1))
+                        y: Number((point.precipitation as number).toFixed(1)) < 0 ? 0 : Number((point.precipitation as number).toFixed(1)),
                     };
                 }),
                 type: 'bar',
