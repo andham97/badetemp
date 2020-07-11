@@ -28,7 +28,7 @@
                         <v-list-item-content>
                             <v-list-item-subtitle>
                                 <v-icon>{{ timeIcon(reading.time) }}</v-icon>
-                                {{reading.time}}
+                                {{ prettyTime(reading.time) }}
                             </v-list-item-subtitle>
                         </v-list-item-content>
                     </v-list-item>

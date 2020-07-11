@@ -1,4 +1,4 @@
-import Location, { getLocations, getAreas, getLocation } from "./data/Location";
+import Location, { getLocations, getAreas, getLocation, getAreaClosestToLocation } from "./data/Location";
 import WaterReading, { getWaterReadings, IWaterReadingInput, addWaterReading, getAreaWaterReadings, getLocationsWaterReadings, getAreaNewestWaterReadings } from "./data/WaterReading";
 import AirReading, { getAirReadings, getAreaAirReadings, getLocationsAirReadings } from "./data/AirReading";
 import { login, register, logout } from "./data/Auth";
@@ -8,8 +8,11 @@ config();
 
 export default {
     Query: {
-        areas: async (_: any, __: any, context: IContext): Promise<String[]> => {
+        areas: async (_: any, __: any, context: IContext): Promise<string[]> => {
             return getAreas(context.dbConnection);
+        },
+        areaClosestToLocation: async (_:any, args: { lat: number, lng: number }, context: IContext): Promise<string> => {
+            return getAreaClosestToLocation(context.dbConnection, args.lat, args.lng);
         },
         location: async (_: any, args: { name: string }, context: IContext): Promise<Location> => {
             return getLocation(context.dbConnection, args.name);

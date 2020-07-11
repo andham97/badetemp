@@ -127,5 +127,11 @@ export default class LocationChart extends Vue {
                 stickyTracking: false,
             });
         }
+        if (this.options.title) {
+            this.options.title.text = 'Overview (' + this.location + ')';
+        }
+        else {
+            this.options.title = { text: 'Overview (' + this.location + ')' };
+        }
     }
 }

@@ -20,6 +20,10 @@ export default class AreaChartComponent extends Vue {
         return 'mdi-clock-time-' + hourNames[Number(moment(time).format('hh')) - 1];
     }
 
+    public prettyTime(time: string): string {
+        return moment(time).format('D. MMM' + (moment(time).year() === moment().year() ? '' : ' YYYY') + ' HH:mm');
+    }
+
     public openDetailView(location: string): void {
         this.$router.push('/location/' + location);
     }
@@ -33,10 +37,7 @@ export default class AreaChartComponent extends Vue {
     private async loadList(): Promise<void> {
         const readings = await this.GQLService.getQuery<{ areaNewestWaterReadings: IWaterReading[] }>(`{ areaNewestWaterReadings(area: "${this.area}") { time temperature location { name } } }`);
         if (readings.data.areaNewestWaterReadings) {
-            this.data = readings.data.areaNewestWaterReadings.map(reading => {
-                reading.time = moment(reading.time).format('D. MMM' + (moment(reading.time).year() === moment().year() ? '' : ' YYYY') + ' HH:mm');
-                return reading;
-            }).sort((a, b) => {
+            this.data = readings.data.areaNewestWaterReadings.sort((a, b) => {
                 if (!a.location || !a.location.name || !b.location || !b.location.name) {
                     return 0;
                 }

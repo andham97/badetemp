@@ -21,6 +21,7 @@ type AirReading {
 
 type Query {
     areas: [String]
+    areaClosestToLocation(lat: Float!, lng: Float!): String
     areaAirReadings(area: String!): [AirReading]
     areaWaterReadings(area: String!): [WaterReading]
     areaNewestWaterReadings(area: String!): [WaterReading]
