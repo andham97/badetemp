@@ -16,7 +16,7 @@ import LocationService from '@/services/LocationService';
 })
 export default class Overview extends Vue {
     public data: Highcharts.SeriesOptionsType[] = [];
-    public selectedArea = 'Skien';
+    public selectedArea = 'Siljan';
     public areas: string[] = [];
 
     private GQLService = new GQLService();
@@ -33,7 +33,6 @@ export default class Overview extends Vue {
     async mounted(): Promise<void> {
         try {
             const position = await this.LocationService.getUserLocation();
-            console.log(position);
             const area = await this.GQLService.getQuery<{ areaClosestToLocation: string }>(`{ areaClosestToLocation(lat: ${position.lat}, lng: ${position.lng}) }`);
             this.selectedArea = area.data.areaClosestToLocation;
         }

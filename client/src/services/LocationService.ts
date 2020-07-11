@@ -1,5 +1,3 @@
-import Service from './Service';
-
 export default class LocationService {
     public async getUserLocation(): Promise<{ lat: number, lng: number }> {
         return new Promise((resolve, reject) => {
